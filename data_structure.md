@@ -49,3 +49,27 @@ TODO
 # TODO
 ```
 
+
+```mermaid
+flowchart TD
+    classDef meta fill:#4CAF50,stroke:#388E3C;
+    classDef data fill:#2196F3,stroke:#1976D2;
+    
+    subgraph MetaLayer[元数据层]
+        direction TB
+        M1[(关系型数据库)]:::meta
+        M2[搜索引擎]:::meta
+        M3[图数据库]:::meta
+    end
+
+    subgraph DataLayer[实际数据层]
+        direction TB
+        D1[对象存储]:::data
+        D2[向量数据库]:::data
+        D3[文件系统]:::data
+        D4[NoSQL数据库]:::data
+    end
+
+    A[业务逻辑] -->|读写元数据| MetaLayer
+    A -->|读写实际内容| DataLayer
+```
