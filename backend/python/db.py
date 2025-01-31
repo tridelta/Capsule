@@ -18,8 +18,8 @@ def _get_random_id() -> str:
 
     @return str: A SHA-256 hash string representing the random ID.
     """
-    return _sha256(random.random())
-
+    # Convert the random float to a string before hashing
+    return _sha256(str(random.random()))[:25]
 
 def _get_hash_id(content: str | bytes) -> str:
     """
@@ -37,7 +37,7 @@ def _get_hash_id(content: str | bytes) -> str:
 
 
 def add_atom(atom):
-    atom_id = "A_" + _get_random_id()
+    atom_id = "0x" + _get_random_id()
 
     ATOMS[atom_id] = {
         "id": atom_id,
@@ -70,7 +70,7 @@ def get_connection(connection_id):
 
 def add_quark(quark):
     quark_hash = _get_hash_id(quark["content"])
-    quark_id = "Q_" + quark_hash
+    quark_id = "1x" + quark_hash
 
     ATOMS[quark_id] = {
         "id": quark_id,
@@ -84,3 +84,7 @@ def add_quark(quark):
 
 def get_quark(quark_id):
     return QUARKS.get(quark_id)
+
+if __name__ == "__main__":
+    add_atom({"title": "test", "contents": "test"})
+    print(ATOMS)
