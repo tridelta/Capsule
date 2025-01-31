@@ -1,4 +1,4 @@
-
+import time
 import random
 from hashlib import sha256
 
@@ -26,3 +26,9 @@ def _get_hash_id(content: str | bytes) -> str:
     if isinstance(content, str):
         return _sha256(content)
     return sha256(content).hexdigest()
+
+def _get_current_timestamp() -> str:
+    """
+    Returns the current timestamp in the format in GMT.
+    """
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
