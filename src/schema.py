@@ -1,8 +1,18 @@
 from jieba import posseg as pseg
 from utils import _get_random_id, _get_hash_id, _get_current_timestamp
+from typing import List
 
+"""声明"""
 class Atom:
-    def __init__(self, title, contents: list):
+    pass
+
+class Quark:
+    pass
+
+
+"""实现"""
+class Atom:
+    def __init__(self, title, contents: List[Quark]):
         """
         Atom 应有的字段:
           - id          str     唯一标识符
@@ -10,7 +20,7 @@ class Atom:
           - contents    list    内容(每个元素都是Quark)
           - tags        list    标签
         """
-        self.id = "A" + _get_random_id()
+        self.id = "A-" + _get_random_id()
         self.title = title
         self.contents = contents
         self.tags = []
@@ -47,26 +57,55 @@ class Atom:
     def get_full_contents(self):
         contents = []
         for quark in self.contents:
-            if quark.type == "text" or quark.type == "transcript":
+            if quark.type == "text":
                 contents.append(quark.content)
+            elif quark.transcripts:
+                for t in quark.transcripts:
+                    contents.append(t["content"])
 
         return "\n".join(contents)
+    
+    def to_json(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "contents": [q.to_json() for q in self.contents],
+            "tags": self.tags
+        }
 
 class Quark:
-    def __init__(self, content, type="text"):
+    def __init__(self, content, type="text", transcripts=[]):
         """
         Quark 应有的字段:
           - id          str     唯一标识符
           - type        str     类型
           - content     str     内容
+          - transcripts list    对非文本内容的解释，可以有很多个。
           - created_at  str     创建时间
+
+        transcripts 的结构示例（每个元素）:
+        {
+            type: 'transcript/xxx',
+            content: '<str>...'
+        }
         """
-        self.id = "Q" + _get_hash_id(content)
+        self.id = "Q-" + _get_hash_id(content)
         self.type = type
         self.content = content
+        self.transcripts = transcripts
         self.created_at = _get_current_timestamp()
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "type": self.type,
+            "content": self.content,
+            "transcripts": self.transcripts,
+            "created_at": self.created_at
+        }
 
+
+"""测试"""
 if __name__ == "__main__":
     # NOTE FROM BH:az...你这auto tag把所有词都列出来了...没做完?
     atom = Atom("Hello World", [

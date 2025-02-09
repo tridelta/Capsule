@@ -1,0 +1,10 @@
+===============================================================
+[version-dev] 报告一下我最近的更改 (2025-2-9):
+- 我将程序放到了 src 文件夹。
+- 我写了 4 个简单的 service : AIService, APIGateway, ConfigService, FileService.
+- 其中，AIService 只是将你在 Rumor Firewall 项目中问的 Qwen 问题的代码 copy 过来了，暂时不用 AI 就不用理他。
+- 其中，ConfigService 用来读取配置文件，目前没有配置文件，只是从环境变量读取 Qwen 的API key而已，也不用管他。
+- 其中，FileService 用来管理文件，其中的 `local.py` 是用来操作本地文件系统的。但是鉴于我们目前还是操作class，所以暂时也不用理他。
+- 只有 APIGateway ，里面有我写的测试代码，直接跑 test.py，配合我的前端页面（capsule_frontend 仓库）。
+- index.py 的作用是提供了两个dict：ATOMS 和 QUARKS，用于存储所有已存在的原子和夸克信息。
+===============================================================

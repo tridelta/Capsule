@@ -1,3 +1,10 @@
+"""
+ConfigService/secret.py
+=======================
+
+This module provides a unified way to access/manage API secrets and other credentials.
+"""
+
 import os
 
 _SECRETS = {
