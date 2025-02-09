@@ -1,7 +1,7 @@
 import fastapi
 import base64
-from .. import index
-from .. import schema
+import index
+import schema
 
 app = fastapi.FastAPI()
 
@@ -80,4 +80,5 @@ def create_quark():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
