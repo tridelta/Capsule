@@ -12,8 +12,8 @@ Config:
 import os
 
 # config
-PROJ_ROOT = os.getcwd()    # dev environment only
-QUARK_DIR = f"{PROJ_ROOT}/quarks"
+PROJ_ROOT = os.getcwd()    # NOTE dev environment only
+QUARK_DIR = f"{PROJ_ROOT}/data/quarks"
 
 # init dir
 if not os.path.exists(QUARK_DIR):

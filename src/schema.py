@@ -1,16 +1,24 @@
 from jieba import posseg as pseg
 from utils import _get_random_id, _get_hash_id, _get_current_timestamp
+import index
+import FileService
 from typing import List
+import base64
 
 """声明"""
+
+
 class Atom:
     pass
+
 
 class Quark:
     pass
 
 
 """实现"""
+
+
 class Atom:
     def __init__(self, title, contents: List[Quark]):
         """
@@ -24,31 +32,31 @@ class Atom:
         self.title = title
         self.contents = contents
         self.tags = []
-    
+
     def add_tag(self, tag):
         self.tags.append(tag)
 
     def auto_tag(self):
         # 结巴分词带词性标注
         words = pseg.cut(self.get_full_contents())
-        
+
         # 定义需要保留的词性(可根据需求调整)
         KEEP_FLAGS = {
-            'n',  # 名词
-            'v',  # 动词
-            'a',  # 形容词
-            'nr', # 人名
-            'ns', # 地名
-            'nt', # 机构团体
-            'nz', # 其他专名
-            'eng' # 英文
+            "n",  # 名词
+            "v",  # 动词
+            "a",  # 形容词
+            "nr",  # 人名
+            "ns",  # 地名
+            "nt",  # 机构团体
+            "nz",  # 其他专名
+            "eng",  # 英文
         }
 
         # 过滤停用词性和单字词
         meaningful_words = [
-            word.word for word in words 
-            if word.flag in KEEP_FLAGS 
-            and len(word.word) > 1
+            word.word
+            for word in words
+            if word.flag in KEEP_FLAGS and len(word.word) > 1
         ]
 
         # 去重后添加为标签
@@ -64,14 +72,25 @@ class Atom:
                     contents.append(t["content"])
 
         return "\n".join(contents)
-    
+
     def to_json(self):
         return {
             "id": self.id,
             "title": self.title,
-            "contents": [q.to_json() for q in self.contents],
-            "tags": self.tags
+            "contents": [q.id for q in self.contents],
+            "tags": self.tags,
         }
+
+    @classmethod
+    def from_json(cls, json_obj):
+        atom = cls(json_obj["title"], [])
+        atom.id = json_obj["id"]
+        atom.contents = [
+            Quark.from_json(index.QUARKS[q_id]) for q_id in json_obj["contents"]
+        ]
+        atom.tags = json_obj["tags"]
+        return atom
+
 
 class Quark:
     def __init__(self, content, type="text", transcripts=[]):
@@ -91,9 +110,16 @@ class Quark:
         """
         self.id = "Q-" + _get_hash_id(content)
         self.type = type
-        self.content = content
         self.transcripts = transcripts
         self.created_at = _get_current_timestamp()
+        # save content
+        if self.type == "text":
+            self.content = content
+        else:
+            err = FileService.local.save_quark_content(self.id, content)
+            if err != 0:
+                raise Exception("Save Quark Content Error: " + str(err))
+            self.content = "/quarkcontent/" + self.id
 
     def to_json(self):
         return {
@@ -101,17 +127,23 @@ class Quark:
             "type": self.type,
             "content": self.content,
             "transcripts": self.transcripts,
-            "created_at": self.created_at
+            "created_at": self.created_at,
         }
+
+    @classmethod
+    def from_json(cls, json_obj):
+        quark = cls(json_obj["content"], json_obj["type"], json_obj["transcripts"])
+        quark.id = json_obj["id"]
+        quark.created_at = json_obj["created_at"]
+        return quark
 
 
 """测试"""
 if __name__ == "__main__":
     # NOTE FROM BH:az...你这auto tag把所有词都列出来了...没做完?
-    atom = Atom("Hello World", [
-        Quark("Hello, World"),
-        Quark("I am Bernie Huang at age 16")
-    ])
+    atom = Atom(
+        "Hello World", [Quark("Hello, World"), Quark("I am Bernie Huang at age 16")]
+    )
 
     atom.auto_tag()
     print(atom.tags)
