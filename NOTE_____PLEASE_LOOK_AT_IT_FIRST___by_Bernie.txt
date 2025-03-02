@@ -1,9 +1,0 @@
-务必查看 CHANGELOG.txt ！
-以后我们之间的交流都可以在change log里面写，因为我也是一周回来一次，微信上容易找不到消息
-
-另，我建议你安装 TODO Tree 插件，我也会在代码里直接用 #TODO, #NOTE 标记一些内容。
-Todo Tree:（https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.todo-tree）
-
-(前端仓库还没写好，你可以先看看我的屎山，或者是下次cto我来解释一下)
-
---bernie

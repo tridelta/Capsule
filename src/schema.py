@@ -25,11 +25,13 @@ class Atom:
         Atom 应有的字段:
           - id          str     唯一标识符
           - title       str     标题
+          - last_modify str     最后修改时间
           - contents    list    内容(每个元素都是Quark)
           - tags        list    标签
         """
         self.id = "A-" + _get_random_id()
         self.title = title
+        self.last_modify = _get_current_timestamp()
         self.contents = contents
         self.tags = []
 
@@ -77,6 +79,7 @@ class Atom:
         return {
             "id": self.id,
             "title": self.title,
+            "last_modify": self.last_modify,
             "contents": [q.id for q in self.contents],
             "tags": self.tags,
         }
@@ -85,6 +88,7 @@ class Atom:
     def from_json(cls, json_obj):
         atom = cls(json_obj["title"], [])
         atom.id = json_obj["id"]
+        atom.last_modify = json_obj["last_modify"]
         atom.contents = [
             Quark.from_json(index.QUARKS[q_id]) for q_id in json_obj["contents"]
         ]
