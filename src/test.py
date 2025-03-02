@@ -6,7 +6,7 @@ import schema
 import FileService
 
 app = flask.Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": ["https://capsule.berniehg.top", "http://capsule.berniehg.top"], "supports_credentials": True}})
 
 def _get_quark_objects(quark_ids: list[str]) -> list[schema.Quark]:
     quarks = []
