@@ -90,7 +90,7 @@ class Atom:
         atom.id = json_obj["id"]
         atom.last_modify = json_obj["last_modify"]
         atom.contents = [
-            Quark.from_json(index.QUARKS[q_id]) for q_id in json_obj["contents"]
+            index.QUARKS[q_id] for q_id in json_obj["contents"]
         ]
         atom.tags = json_obj["tags"]
         return atom
