@@ -10,10 +10,10 @@ Config:
 
 """
 import os
+import ConfigService
 
 # config
-PROJ_ROOT = os.getcwd()    # NOTE dev environment only
-QUARK_DIR = f"{PROJ_ROOT}/data/quarks"
+QUARK_DIR = f"{ConfigService.PROJECT_ROOT}/data/quarks"
 
 # init dir
 if not os.path.exists(QUARK_DIR):
