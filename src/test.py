@@ -1,12 +1,26 @@
 import flask
 from flask import request
 from flask_cors import CORS
-import index
-import schema
-import FileService
+from . import index
+from . import schema
+from . import FileService
+from . import AutoOrganizeService
 
 app = flask.Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://capsule.berniehg.top", "http://capsule.berniehg.top"], "supports_credentials": True}})
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "https://capsule.berniehg.top",
+                "http://capsule.berniehg.top",
+                "http://localhost:8080",
+            ],
+            "supports_credentials": True,
+        }
+    },
+)
+
 
 def _get_quark_objects(quark_ids: list[str]) -> list[schema.Quark]:
     quarks = []
@@ -16,6 +30,7 @@ def _get_quark_objects(quark_ids: list[str]) -> list[schema.Quark]:
         else:
             return 1, qid
     return 0, quarks
+
 
 @app.route("/atom/<atom_id>")
 def get_atom(atom_id: str):
@@ -33,8 +48,10 @@ def get_atom_tags(atom_id: str):
         return {"code": 1, "message": "Atom not found"}
 
 
-@app.route("/atom/<atom_id>/editquarks", methods=["POST"])
+@app.route("/atom/<atom_id>/edit", methods=["POST"])
 def edit_quarks(atom_id: str):
+    new_title = request.json.get("title", "New Atom")
+    new_tags = request.json.get("tags", [])
     contents_id = request.json.get("quarks")
     err, contents = _get_quark_objects(contents_id)
     if err != 0:
@@ -42,13 +59,14 @@ def edit_quarks(atom_id: str):
 
     if atom_id in index.ATOMS:
         atom = index.ATOMS.get(atom_id)
+        atom.title = new_title
+        atom.tags = new_tags
         atom.contents = contents
         atom.last_modify = schema._get_current_timestamp()
 
     else:
         # Atom Not Found: create a new one
-        title = "New Atom"
-        atom = schema.Atom(title, contents)
+        atom = schema.Atom(new_title, contents)
         index.ATOMS[atom.id] = atom
         atom_id = atom.id
         # return {"code": 1, "message": "Atom not found"}
@@ -110,10 +128,12 @@ def create_quark():
 def get_quark_content(content_id: str):
     return flask.send_file(FileService.local.QUARK_DIR + "/" + content_id)
 
+
 @app.route("/atom_list", methods=["GET"])
 def get_atom_list():
     atoms = [atom.id for atom in index.ATOMS.values()]
     return {"code": 0, "message": "ok", "atom_list": atoms}
+
 
 @app.route("/dev/savedata", methods=["GET"])
 def save_data():
@@ -121,5 +141,13 @@ def save_data():
     return {"code": 0, "message": "Data saved"}
 
 
-if __name__ == "__main__":
-    app.run(host="::0", port=4201, debug=False)
+@app.route("/dev/auto-sum", methods=["GET"])
+def genai():
+    AutoOrganizeService.run()
+    return {"code": 0, "message": "done"}
+
+
+@app.route("/dev/getkey", methods=["GET"])
+def getkey():
+    from . import ConfigService
+    return {"code": 0, "message": "ok", "key": ConfigService.get_secret("llm.lwai")}

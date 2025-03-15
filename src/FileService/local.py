@@ -10,7 +10,7 @@ Config:
 
 """
 import os
-import ConfigService
+from .. import ConfigService
 
 # config
 QUARK_DIR = f"{ConfigService.PROJECT_ROOT}/data/quarks"

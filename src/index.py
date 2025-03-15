@@ -1,7 +1,7 @@
-import inverse_index
 import json
-import schema
-import ConfigService
+from . import inverse_index
+from . import schema
+from . import ConfigService
 
 ATOMS = {
     "atom_id": "Atom-object",

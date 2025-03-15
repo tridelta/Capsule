@@ -6,10 +6,14 @@ This module provides a unified way to access/manage API secrets and other creden
 """
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv('./ConfigService/secrets.env')
 
 _SECRETS = {
     "llm": {
-        "qwen": os.getenv("SECRET_LLM_QWEN")
+        # "qwen": os.getenv("SECRET_LLM_QWEN"),
+        "lwai": os.getenv("SECRET_LLM_CXZLW_COM"),
     }
 }
 

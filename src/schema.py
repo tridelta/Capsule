@@ -1,9 +1,8 @@
 from jieba import posseg as pseg
-from utils import _get_random_id, _get_hash_id, _get_current_timestamp
-import index
-import FileService
+from .utils import _get_random_id, _get_hash_id, _get_current_timestamp
+from . import index
+from . import FileService
 from typing import List
-import base64
 
 """声明"""
 
@@ -34,6 +33,7 @@ class Atom:
         self.last_modify = _get_current_timestamp()
         self.contents = contents
         self.tags = []
+        self.info = {}
 
     def add_tag(self, tag):
         self.tags.append(tag)
@@ -68,7 +68,7 @@ class Atom:
         contents = []
         for quark in self.contents:
             if quark.type == "text":
-                contents.append(quark.content)
+                contents.append(f"({quark.created_at})" + quark.content)
             elif quark.transcripts:
                 for t in quark.transcripts:
                     contents.append(t["content"])
@@ -82,6 +82,7 @@ class Atom:
             "last_modify": self.last_modify,
             "contents": [q.id for q in self.contents],
             "tags": self.tags,
+            "info": self.info,
         }
 
     @classmethod
@@ -89,10 +90,12 @@ class Atom:
         atom = cls(json_obj["title"], [])
         atom.id = json_obj["id"]
         atom.last_modify = json_obj["last_modify"]
-        atom.contents = [
-            index.QUARKS[q_id] for q_id in json_obj["contents"]
-        ]
+        atom.contents = [index.QUARKS[q_id] for q_id in json_obj["contents"]]
         atom.tags = json_obj["tags"]
+        atom.info = json_obj["info"]
+        if 0:
+            atom.tags = []
+            atom.info = []
         return atom
 
 
@@ -134,9 +137,21 @@ class Quark:
             "created_at": self.created_at,
         }
 
+    @staticmethod
+    def load_content(content):
+        if content.startswith("/quarkcontent/"):
+            quark_id = content[len("/quarkcontent/") :]
+            return FileService.local.get_quark_content(quark_id)
+        else:
+            return content
+
     @classmethod
     def from_json(cls, json_obj):
-        quark = cls(json_obj["content"], json_obj["type"], json_obj["transcripts"])
+        quark = cls(
+            Quark.load_content(json_obj["content"]),
+            json_obj["type"],
+            json_obj["transcripts"],
+        )
         quark.id = json_obj["id"]
         quark.created_at = json_obj["created_at"]
         return quark
